@@ -2,23 +2,23 @@ use std::fmt::{Display, Formatter};
 use std::time::{Duration};
 use chrono::prelude::*;
 
-struct Status<T: Display> {
-    items: Vec<StatusItem<T>>
+struct Status {
+    items: Vec<StatusItem>
 }
 
-impl<T: Display> Status<T> {
-    pub fn push(&mut self, item: StatusItem<T>) {
+impl Status {
+    pub fn push(&mut self, item: StatusItem) {
         self.items.push(item)
     }
 }
 
-impl<T: Display> Default for Status<T> {
-    fn default() -> Status<T> {
-        Status::<T>{items: vec![]}
+impl Default for Status {
+    fn default() -> Status {
+        Status{items: vec![]}
     }
 }
 
-impl<T: Display> Display for Status<T> {
+impl Display for Status {
     fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
         write!(f, "[")?;
 
@@ -31,26 +31,23 @@ impl<T: Display> Display for Status<T> {
 }
 
 
-struct StatusItem<T>{name: String,
+struct StatusItem{name: String,
                               instance: String,
                               markup: String,
-                              full_text: T}
+                              full_text: String}
 
-impl<T> StatusItem<T> {
-}
-
-impl<T: Default+Display> Default for StatusItem<T> {
-    fn default() -> StatusItem<T> {
-        StatusItem::<T> {
+impl Default for StatusItem {
+    fn default() -> StatusItem {
+        StatusItem {
             name: "".to_string(),
             instance: "".to_string(),
             markup: "none".to_string(),
-            full_text: T::default()
+            full_text: "".to_string()
         }
     }
 }
 
-impl<T: Display> Display for StatusItem<T> {
+impl Display for StatusItem {
     fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
         write!(f, "{{\"name\":\"{}\",\"instance\":\"{}\",\"markup\":\"{}\",\"full_text\":\"{}\"}}",
                self.name,
@@ -64,11 +61,11 @@ fn preface() -> String {
     "{\"version\":1}\n[".to_string()
 }
 
-fn status() -> Status<DateTime<Local>> {
+fn status() -> Status {
     let mut time_item = StatusItem::default();
 
     time_item.name = "Time".to_string();
-    time_item.full_text = Local::now();
+    time_item.full_text = Local::now().to_string();
 
     let mut status = Status::default();
 
@@ -83,9 +80,9 @@ fn main() {
     println!("[{}]", status());
 
     loop {
-        std::thread::sleep(Duration::from_millis(500u64));
+        std::thread::sleep(Duration::from_secs(1u64));
     
-        println!(",[{}]", status());
+        println!(",{}", status());
     }
 }
 
