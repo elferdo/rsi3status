@@ -1,6 +1,8 @@
 use std::fmt::{Display, Formatter};
 use std::time::{Duration};
 use chrono::prelude::*;
+use sysctl::Sysctl;
+use itertools::Itertools;
 
 struct Status {
     items: Vec<StatusItem>
@@ -22,10 +24,8 @@ impl Display for Status {
     fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
         write!(f, "[")?;
 
-        for item in &self.items {
-            write!(f, "{}", item)?;
-        }
-
+	write!(f, "{}", self.items.iter().join(","))?;
+	       
         write!(f, "]")
     }
 }
@@ -61,15 +61,44 @@ fn preface() -> String {
     "{\"version\":1}\n[".to_string()
 }
 
-fn status() -> Status {
+fn time_status() -> StatusItem {
     let mut time_item = StatusItem::default();
 
     time_item.name = "Time".to_string();
-    time_item.full_text = Local::now().to_string();
+    time_item.full_text = format!("🕒{}", Local::now());
 
+    time_item
+}
+
+fn ferdo_status() -> StatusItem {
+    let mut time_item = StatusItem::default();
+
+    time_item.name = "Ferdo".to_string();
+    time_item.full_text = "Ferdo".to_string();
+
+    time_item
+}
+
+fn battery_status() -> StatusItem {
+    let mut battery_item = StatusItem::default();
+
+    let life_ctl = sysctl::Ctl::new("hw.acpi.battery.life").unwrap();
+    let time_ctl = sysctl::Ctl::new("hw.acpi.battery.time").unwrap();
+
+    let time = chrono::Duration::minutes(time_ctl.value_string().unwrap().parse::<i64>().unwrap());
+    
+    battery_item.name = "Battery".to_string();
+    battery_item.full_text = format!("🔋{}% {}", life_ctl.value_string().unwrap(), time.format("%h%m%s"));
+
+    battery_item
+}
+
+fn status() -> Status {
     let mut status = Status::default();
 
-    status.push(time_item);
+    status.push(ferdo_status());
+    status.push(battery_status());
+    status.push(time_status());
 
     status
 }
@@ -77,7 +106,7 @@ fn status() -> Status {
 fn main() {
     println!("{}", preface());
 
-    println!("[{}]", status());
+    println!("{}", status());
 
     loop {
         std::thread::sleep(Duration::from_secs(1u64));
@@ -102,14 +131,14 @@ mod test {
     
     #[test]
     fn default_status_item_when_to_string_then_all_fields_empty() {
-        let status_item = StatusItem::<String>::default();
+        let status_item = StatusItem::default();
         
         assert_eq!(status_item.to_string(), "{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}");
     }
 
     #[test]
     fn default_status_xxx() {
-        let status_item = StatusItem::<DateTimeFake>::new();
+        let status_item = StatusItem::default();
         
         assert_eq!(status_item.to_string(), "{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"date_time_fake\"}");
     }    
@@ -124,10 +153,20 @@ mod test {
     #[test]
     fn default_status_when_one_item_then_to_string_equals_list_of_one_item() {
         let mut status = Status::default();
-        let status_item = StatusItem::<String>::default();
+        let status_item = StatusItem::default();
 
         status.push(status_item);
         
         assert_eq!(status.to_string(), "[{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}]");
+    }
+
+    #[test]
+    fn default_status_when_two_items_then_to_string_equals_list_of_two_items() {
+        let mut status = Status::default();
+        let status_item = StatusItem::default();
+
+        status.push(status_item);
+        
+        assert_eq!(status.to_string(), "[{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"},{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}]");
     }
 }
