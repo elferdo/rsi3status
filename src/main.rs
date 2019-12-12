@@ -30,7 +30,7 @@ impl Display for Status {
     }
 }
 
-
+#[derive(Clone)]
 struct StatusItem{name: String,
                               instance: String,
                               markup: String,
@@ -120,28 +120,12 @@ mod test {
     use super::{Status, StatusItem};
     use std::fmt::{Display, Formatter};
     
-    struct DateTimeFake {
-    }
-
-    impl Display for DateTimeFake {
-        fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
-            write!(f, "date_time_fake")
-        }
-    }
-    
     #[test]
     fn default_status_item_when_to_string_then_all_fields_empty() {
         let status_item = StatusItem::default();
         
         assert_eq!(status_item.to_string(), "{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}");
     }
-
-    #[test]
-    fn default_status_xxx() {
-        let status_item = StatusItem::default();
-        
-        assert_eq!(status_item.to_string(), "{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"date_time_fake\"}");
-    }    
 
     #[test]
     fn default_status_when_default_then_empty_list() {
@@ -165,6 +149,7 @@ mod test {
         let mut status = Status::default();
         let status_item = StatusItem::default();
 
+        status.push(status_item.clone());
         status.push(status_item);
         
         assert_eq!(status.to_string(), "[{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"},{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}]");
