@@ -88,7 +88,7 @@ fn battery_status() -> StatusItem {
     let time = chrono::Duration::minutes(time_ctl.value_string().unwrap().parse::<i64>().unwrap());
     
     battery_item.name = "Battery".to_string();
-    battery_item.full_text = format!("🔋{}% {}", life_ctl.value_string().unwrap(), time.format("%h%m%s"));
+    battery_item.full_text = format!("🔋{}% {}", life_ctl.value_string().unwrap(), time);
 
     battery_item
 }
