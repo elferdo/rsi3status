@@ -1,38 +1,20 @@
 mod colorscale;
 mod gauge;
 mod status;
+mod time;
 
-use std::time::{Duration};
-use chrono::prelude::*;
 use gauge::bar;
 use sysctl::Sysctl;
 use status::{Status, StatusItem};
+use std::time::Duration;
+use time::{date_status, time_status};
 
 const BATTERY:char = '🔋';
-const CLOCK:char = '🕒';
-const CALENDAR:char = '📅';
 
 fn preface() -> String {
     "{\"version\":1}\n[".to_string()
 }
 
-fn time_status() -> StatusItem {
-    let mut time_item = StatusItem::default();
-
-    time_item.name = "Time".to_string();
-    time_item.full_text = format!("{}{}", CLOCK, Local::now().format("%H:%M:%S"));
-
-    time_item
-}
-
-fn date_status() -> StatusItem {
-    let mut time_item = StatusItem::default();
-
-    time_item.name = "Time".to_string();
-    time_item.full_text = format!("{}{}", CALENDAR, Local::now().format("%d %h %Y"));
-
-    time_item
-}
 
 fn ferdo_status() -> StatusItem {
     let mut time_item = StatusItem::default();
