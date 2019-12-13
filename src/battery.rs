@@ -51,22 +51,26 @@ pub fn battery_status() -> StatusItem {
     battery_item.markup = "pango".to_string();
 
     battery_item.name = "Battery".to_string();
-    battery_item.full_text = format!("{}{}", BATTERY, "error reading battery info");
-
-    if let Ok(battery_info) = read_battery_info() {
-	if let Ok(life) = u8::try_from(battery_info.life) {
-	    if let Ok(battery_bar) = bar(life, 25) {
-		battery_item.full_text =
+    battery_item.full_text =
+	if let Ok(battery_info) = read_battery_info() {
+	    if let Ok(life) = u8::try_from(battery_info.life) {
+		if let Ok(battery_bar) = bar(life, 25) {
 		    format!("{}{}% <span foreground=\\\"#00de55\\\" background=\\\"#555555\\\">{}</span> {}",
 			    BATTERY,
 			    life,
 			    battery_bar,
 			    minutes_to_human(battery_info.time)
-		    );
+		    )
+		} else {
+		    "could not format battery bar".to_string()
+		}
+	    } else {
+		"invalid battery life value".to_string()
 	    }
-	}
-    }
-
+	} else {
+	    format!("{}{}", BATTERY, "error reading battery info")
+	};
+    
     battery_item
 }
 
