@@ -1,6 +1,6 @@
-const _blocks: [&str; 8] = [" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"];
-const full_block: &str = "█";
-const empty_block: &str = " ";
+const BLOCKS: [&str; 8] = [" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"];
+const FULL_BLOCK: &str = "█";
+const EMPTY_BLOCK: &str = " ";
 
 pub fn bar<'a>(percentage: u8, total: usize) -> Result<String, &'a str> {
     if percentage > 100 {
@@ -9,16 +9,16 @@ pub fn bar<'a>(percentage: u8, total: usize) -> Result<String, &'a str> {
     
     let fraction = total as f32 * percentage as f32 / 100f32;
 
-    let filled = ((total as f32) * (percentage as f32 / 100f32)) as usize;
+    let filled = fraction.floor() as usize;
 
-    let remainder = ((fraction - (filled as f32)) * 8f32) as usize;
+    let remainder = ((fraction - fraction.floor()) * 8f32) as usize;
 
-    let mut result = String::default();
+    let result;
     
-    if (percentage == 100) {
-    	result = full_block.repeat(filled) + &empty_block.repeat(total - filled);
+    if percentage == 100 {
+    	result = FULL_BLOCK.repeat(filled as usize) + &EMPTY_BLOCK.repeat(total - filled);
     }else {
-    	result = full_block.repeat(filled) + _blocks[remainder] + &empty_block.repeat(total - filled - 1);
+    	result = FULL_BLOCK.repeat(filled) + BLOCKS[remainder] + &EMPTY_BLOCK.repeat(total - filled - 1);
     }
 
     Ok(result.to_string())
