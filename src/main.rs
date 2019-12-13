@@ -9,6 +9,7 @@ use itertools::Itertools;
 
 const BATTERY:char = '🔋';
 const CLOCK:char = '🕒';
+const CALENDAR:char = '📅';
 
 struct Status {
     items: Vec<StatusItem>
@@ -71,7 +72,16 @@ fn time_status() -> StatusItem {
     let mut time_item = StatusItem::default();
 
     time_item.name = "Time".to_string();
-    time_item.full_text = format!("{}{}", CLOCK, Local::now());
+    time_item.full_text = format!("{}{}", CLOCK, Local::now().format("%H:%M:%S"));
+
+    time_item
+}
+
+fn date_status() -> StatusItem {
+    let mut time_item = StatusItem::default();
+
+    time_item.name = "Time".to_string();
+    time_item.full_text = format!("{}{}", CALENDAR, Local::now().format("%d %h %Y"));
 
     time_item
 }
@@ -111,6 +121,7 @@ fn status() -> Status {
 
     status.push(ferdo_status());
     status.push(battery_status());
+    status.push(date_status());
     status.push(time_status());
 
     status
