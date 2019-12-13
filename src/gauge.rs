@@ -47,6 +47,15 @@ mod test {
     }
 
     #[test]
+    fn when_three_quarters_and_size_four_then_three_full_chars() -> Result<(), String> {
+	let three_quarter_bar = bar(75, 4)?;
+
+	assert_eq!("███ ", three_quarter_bar);
+
+	Ok(())
+    }
+
+    #[test]
     fn when_half_and_size_one_then_left_half_block() -> Result<(), String> {
 	let half_bar = bar(50, 1)?;
 

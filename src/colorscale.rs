@@ -4,6 +4,22 @@ struct Palette{
     breakpoints: Vec<RGB8>
 }
 
+fn interval<T>(v: &Vec<T>, percentage: usize) -> Result<(&T, &T), ()> {
+    // if v.is_empty() || percentage > 100 {
+    // 	return Err(());
+    // }
+    
+    if v.len() == 1 {
+	Ok((&v[0], &v[0]))
+    } else {
+	let interval_length = 100f64 / (v.len() as f64);
+	
+	let point = v.len() * 100 / percentage;
+
+	return Ok((&v[point], &v[point + 1]));
+    }
+}
+
 impl Palette {
     fn new(breakpoints: Vec<RGB8>) -> Self {
 	Palette {breakpoints: breakpoints}
@@ -29,7 +45,7 @@ impl Palette {
 #[cfg(test)]
 mod test {
     use rgb::RGB8;
-    use super::Palette;
+    use super::{Palette, interval};
 
     #[test]
     fn when_one_target_color_then_50_equal_target_color() {
@@ -65,4 +81,26 @@ mod test {
 	let palette = Palette::new(vec![target_color0, target_color1, target_color2]);
 	assert_eq!(palette.color(50), RGB8{r:1, g:1, b:1});
     }
+
+    #[test]
+    fn interval_when_one_point_then_50_equal_point() {
+	let v = vec![0];
+	
+	assert_eq!(interval(&v, 50), Ok((&v[0], &v[0])));
+    }
+
+    #[test]
+    fn interval_when_two_points_then_50_equal_two_points() {
+	let v = vec![0, 1];
+	
+	assert_eq!(interval(&v, 50), Ok((&v[0], &v[1])));
+    }
+
+    #[test]
+    fn interval_when_three_points_then_50_equal_second_interval() {
+	let v = vec![0, 1, 2];
+	
+	assert_eq!(interval(&v, 50), Ok((&v[1], &v[2])));
+    }
+    
 }

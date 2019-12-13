@@ -1,68 +1,16 @@
+mod colorscale;
 mod gauge;
+mod status;
 
-use std::fmt::{Display, Formatter};
 use std::time::{Duration};
 use chrono::prelude::*;
 use gauge::bar;
 use sysctl::Sysctl;
-use itertools::Itertools;
+use status::{Status, StatusItem};
 
 const BATTERY:char = '🔋';
 const CLOCK:char = '🕒';
 const CALENDAR:char = '📅';
-
-struct Status {
-    items: Vec<StatusItem>
-}
-
-impl Status {
-    pub fn push(&mut self, item: StatusItem) {
-        self.items.push(item)
-    }
-}
-
-impl Default for Status {
-    fn default() -> Status {
-        Status{items: vec![]}
-    }
-}
-
-impl Display for Status {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
-        write!(f, "[")?;
-
-	write!(f, "{}", self.items.iter().join(","))?;
-	       
-        write!(f, "]")
-    }
-}
-
-#[derive(Clone)]
-struct StatusItem{name: String,
-                              instance: String,
-                              markup: String,
-                              full_text: String}
-
-impl Default for StatusItem {
-    fn default() -> StatusItem {
-        StatusItem {
-            name: "".to_string(),
-            instance: "".to_string(),
-            markup: "none".to_string(),
-            full_text: "".to_string()
-        }
-    }
-}
-
-impl Display for StatusItem {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
-        write!(f, "{{\"name\":\"{}\",\"instance\":\"{}\",\"markup\":\"{}\",\"full_text\":\"{}\"}}",
-               self.name,
-               self.instance,
-               self.markup,
-               self.full_text)
-    }
-}
 
 fn preface() -> String {
     "{\"version\":1}\n[".to_string()
@@ -97,6 +45,7 @@ fn ferdo_status() -> StatusItem {
 
 fn battery_status() -> StatusItem {
     let mut battery_item = StatusItem::default();
+    battery_item.markup = "pango".to_string();
 
     let life_ctl = sysctl::Ctl::new("hw.acpi.battery.life").unwrap();
     let time_ctl = sysctl::Ctl::new("hw.acpi.battery.time").unwrap();
@@ -110,8 +59,8 @@ fn battery_status() -> StatusItem {
     battery_item.name = "Battery".to_string();
     let value_string = life_ctl.value_string().unwrap();
     let value = value_string.parse::<u8>().unwrap();
-    
-    battery_item.full_text = format!("{}{}% {} {}", BATTERY, value_string, bar(value, 5).unwrap(), minutes_to_human(time));
+
+    battery_item.full_text = format!("{}{}% <span foreground=\\\"#00de55\\\" background=\\\"#555555\\\">{}</span> {}", BATTERY, value_string, bar(value, 25).unwrap(), minutes_to_human(time));
 
     battery_item
 }
@@ -135,6 +84,7 @@ fn minutes_to_human(min: i32) -> String {
 }
 
 fn main() {
+
     println!("{}", preface());
 
     println!("{}", status());
@@ -150,40 +100,6 @@ fn main() {
 mod test {
     use super::{Status, StatusItem, minutes_to_human};
     
-    #[test]
-    fn default_status_item_when_to_string_then_all_fields_empty() {
-        let status_item = StatusItem::default();
-        
-        assert_eq!(status_item.to_string(), "{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}");
-    }
-
-    #[test]
-    fn default_status_when_default_then_empty_list() {
-        let status = Status::default();
-
-        assert_eq!(status.to_string(), "[]");
-    }
-
-    #[test]
-    fn default_status_when_one_item_then_to_string_equals_list_of_one_item() {
-        let mut status = Status::default();
-        let status_item = StatusItem::default();
-
-        status.push(status_item);
-        
-        assert_eq!(status.to_string(), "[{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}]");
-    }
-
-    #[test]
-    fn default_status_when_two_items_then_to_string_equals_list_of_two_items() {
-        let mut status = Status::default();
-        let status_item = StatusItem::default();
-
-        status.push(status_item.clone());
-        status.push(status_item);
-        
-        assert_eq!(status.to_string(), "[{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"},{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}]");
-    }
 
     #[test]
 
