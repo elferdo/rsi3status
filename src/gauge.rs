@@ -1,10 +1,26 @@
+use std::fmt::{Display, Formatter};
+
 const BLOCKS: [&str; 8] = [" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"];
 const FULL_BLOCK: &str = "█";
 const EMPTY_BLOCK: &str = " ";
 
-pub fn bar<'a>(percentage: u8, total: usize) -> Result<String, &'a str> {
+pub enum GaugeError {
+    InvalidPercentage
+}
+
+impl Display for GaugeError {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
+	write!(f, "{}",
+	       match self {
+		   InvalidPercentage => "invalid percentage",
+	       }
+	)
+    }
+}
+
+pub fn bar<'a>(percentage: u8, total: usize) -> Result<String, GaugeError> {
     if percentage > 100 {
-	return Err("percentage larger than 100");
+	return Err(GaugeError::InvalidPercentage);
     }
     
     let fraction = total as f32 * percentage as f32 / 100f32;

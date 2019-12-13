@@ -46,30 +46,35 @@ fn minutes_to_human(min: i32) -> String {
     format!("{:02}h {:02}m", hours, remainder)
 }
 
+impl ToString for BatteryInfo {
+    fn to_string(&self) -> String{
+	u8::try_from(self.life).map_or_else(
+	    |e| e.to_string(),
+	    |life|
+	    bar(life, 25).map_or_else(
+		|e| e.to_string(),
+		|battery_bar|
+		format!("{}% <span foreground=\\\"#00de55\\\" background=\\\"#555555\\\">{}</span> {}",
+			life,
+			battery_bar,
+			minutes_to_human(self.time)
+		)
+	    )
+	)
+    }
+}
+
 pub fn battery_status() -> StatusItem {
     let mut battery_item = StatusItem::default();
     battery_item.markup = "pango".to_string();
 
     battery_item.name = "Battery".to_string();
-    battery_item.full_text =
-	if let Ok(battery_info) = read_battery_info() {
-	    if let Ok(life) = u8::try_from(battery_info.life) {
-		if let Ok(battery_bar) = bar(life, 25) {
-		    format!("{}{}% <span foreground=\\\"#00de55\\\" background=\\\"#555555\\\">{}</span> {}",
-			    BATTERY,
-			    life,
-			    battery_bar,
-			    minutes_to_human(battery_info.time)
-		    )
-		} else {
-		    "could not format battery bar".to_string()
-		}
-	    } else {
-		"invalid battery life value".to_string()
-	    }
-	} else {
-	    format!("{}{}", BATTERY, "error reading battery info")
-	};
+    let battery_text = match read_battery_info() {
+	Ok(info) => info.to_string(),
+	Err(e) => e.to_string()
+    };
+
+    battery_item.full_text = format!("{}{}", BATTERY, battery_text);
     
     battery_item
 }
