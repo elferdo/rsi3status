@@ -1,10 +1,10 @@
 use rgb::RGB8;
 
-struct Palette{
+struct _Palette{
     breakpoints: Vec<RGB8>
 }
 
-fn interval<T>(v: &Vec<T>, percentage: usize) -> Result<(&T, &T), ()> {
+fn _interval<T>(v: &Vec<T>, percentage: usize) -> Result<(&T, &T), ()> {
     // if v.is_empty() || percentage > 100 {
     // 	return Err(());
     // }
@@ -20,12 +20,12 @@ fn interval<T>(v: &Vec<T>, percentage: usize) -> Result<(&T, &T), ()> {
     }
 }
 
-impl Palette {
-    fn new(breakpoints: Vec<RGB8>) -> Self {
-	Palette {breakpoints: breakpoints}
+impl _Palette {
+    fn _new(breakpoints: Vec<RGB8>) -> Self {
+	_Palette {breakpoints: breakpoints}
     }
 
-    fn color(&self, _percentage: u8) -> RGB8 {
+    fn _color(&self, _percentage: u8) -> RGB8 {
 	if self.breakpoints.len() == 1 {
 	    self.breakpoints[0]
 	}

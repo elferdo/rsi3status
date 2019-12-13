@@ -2,13 +2,14 @@ use crate::gauge::bar;
 use crate::status::StatusItem;
 use sysctl::{Sysctl, CtlValue};
 use std::convert::TryFrom;
+use std::fmt::{Display, Formatter};
 
 const BATTERY:char = '🔋';
 
 struct BatteryInfo {
-    info_expire: i32,
-    units: i32,
-    state: i32,
+    _info_expire: i32,
+    _units: i32,
+    _state: i32,
     time: i32,
     life: i32
 }
@@ -33,9 +34,9 @@ fn read_battery_info() -> Result<BatteryInfo, sysctl::SysctlError> {
     Ok(BatteryInfo{
 	life: life,
 	time: time,
-	units: units,
-	state: state,
-	info_expire: info_expire
+	_units: units,
+	_state: state,
+	_info_expire: info_expire
     })
 }
 
@@ -46,20 +47,22 @@ fn minutes_to_human(min: i32) -> String {
     format!("{:02}h {:02}m", hours, remainder)
 }
 
-impl ToString for BatteryInfo {
-    fn to_string(&self) -> String{
-	u8::try_from(self.life).map_or_else(
-	    |e| e.to_string(),
-	    |life|
-	    bar(life, 25).map_or_else(
-		|e| e.to_string(),
-		|battery_bar|
-		format!("{}% <span foreground=\\\"#00de55\\\" background=\\\"#555555\\\">{}</span> {}",
-			life,
-			battery_bar,
-			minutes_to_human(self.time)
-		)
-	    )
+impl Display for BatteryInfo {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
+	write!(f, "{}", 
+	       u8::try_from(self.life).map_or_else(
+		   |e| e.to_string(),
+		   |life|
+		   bar(life, 25).map_or_else(
+		       |e| e.to_string(),
+		       |battery_bar|
+		       format!("{}% <span foreground=\\\"#00de55\\\" background=\\\"#555555\\\">{}</span> {}",
+			       life,
+			       battery_bar,
+			       minutes_to_human(self.time)
+		       )
+		   )
+	       )
 	)
     }
 }

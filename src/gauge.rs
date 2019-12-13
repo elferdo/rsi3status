@@ -12,7 +12,7 @@ impl Display for GaugeError {
     fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
 	write!(f, "{}",
 	       match self {
-		   InvalidPercentage => "invalid percentage",
+		   GaugeError::InvalidPercentage => "invalid percentage",
 	       }
 	)
     }
