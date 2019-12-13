@@ -1,6 +1,7 @@
 use crate::gauge::bar;
 use crate::status::StatusItem;
 use sysctl::{Sysctl, CtlValue};
+use std::convert::TryFrom;
 
 const BATTERY:char = '🔋';
 
@@ -13,7 +14,7 @@ struct BatteryInfo {
 }
 
 fn get_sysctl_value(name: &str) -> Result<i32, sysctl::SysctlError> {
-    let ctl = sysctl::Ctl::new("hw.acpi.battery.life")?;
+    let ctl = sysctl::Ctl::new(name)?;
 
     if let CtlValue::Int(value) = ctl.value()? {
 	return Ok(value);
@@ -49,20 +50,22 @@ pub fn battery_status() -> StatusItem {
     let mut battery_item = StatusItem::default();
     battery_item.markup = "pango".to_string();
 
-    let life_ctl = sysctl::Ctl::new("hw.acpi.battery.life").unwrap();
-    let time_ctl = sysctl::Ctl::new("hw.acpi.battery.time").unwrap();
-
-    let mut time = 0;
-
-    if let sysctl::CtlValue::Int(val) = time_ctl.value().unwrap() {
-	time = val;
-    }
-    
     battery_item.name = "Battery".to_string();
-    let value_string = life_ctl.value_string().unwrap();
-    let value = value_string.parse::<u8>().unwrap();
+    battery_item.full_text = format!("{}{}", BATTERY, "error reading battery info");
 
-    battery_item.full_text = format!("{}{}% <span foreground=\\\"#00de55\\\" background=\\\"#555555\\\">{}</span> {}", BATTERY, value_string, bar(value, 25).unwrap(), minutes_to_human(time));
+    if let Ok(battery_info) = read_battery_info() {
+	if let Ok(life) = u8::try_from(battery_info.life) {
+	    if let Ok(battery_bar) = bar(life, 25) {
+		battery_item.full_text =
+		    format!("{}{}% <span foreground=\\\"#00de55\\\" background=\\\"#555555\\\">{}</span> {}",
+			    BATTERY,
+			    life,
+			    battery_bar,
+			    minutes_to_human(battery_info.time)
+		    );
+	    }
+	}
+    }
 
     battery_item
 }
