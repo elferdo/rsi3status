@@ -2,7 +2,7 @@ const _blocks: [&str; 8] = [" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"
 const full_block: &str = "█";
 const empty_block: &str = " ";
 
-fn bar<'a>(percentage: u8, total: usize) -> Result<String, &'a str> {
+pub fn bar<'a>(percentage: u8, total: usize) -> Result<String, &'a str> {
     if percentage > 100 {
 	return Err("percentage larger than 100");
     }
@@ -13,7 +13,13 @@ fn bar<'a>(percentage: u8, total: usize) -> Result<String, &'a str> {
 
     let remainder = ((fraction - (filled as f32)) * 8f32) as usize;
 
-    let result = full_block.repeat(filled) + _blocks[remainder] + &empty_block.repeat(total - filled - 1);
+    let mut result = String::default();
+    
+    if (percentage == 100) {
+    	result = full_block.repeat(filled) + &empty_block.repeat(total - filled);
+    }else {
+    	result = full_block.repeat(filled) + _blocks[remainder] + &empty_block.repeat(total - filled - 1);
+    }
 
     Ok(result.to_string())
 }
@@ -49,6 +55,24 @@ mod test {
 	Ok(())
     }
 
+    #[test]
+    fn when_full_and_size_one_then_full_block() -> Result<(), String> {
+	let full_bar = bar(100, 1)?;
+
+	assert_eq!("█", full_bar);
+
+	Ok(())
+    }
+
+    #[test]
+    fn when_full_and_size_two_then_two_full_blocks() -> Result<(), String> {
+	let full_bar = bar(100, 2)?;
+
+	assert_eq!("██", full_bar);
+
+	Ok(())
+    }
+    
     #[test]
     fn when_thirty_two_and_size_four_then_one_full_and_one_quarter() -> Result<(), String> {
 	let half_bar = bar(32, 4)?;

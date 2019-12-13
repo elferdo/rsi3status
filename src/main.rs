@@ -1,6 +1,9 @@
+mod gauge;
+
 use std::fmt::{Display, Formatter};
 use std::time::{Duration};
 use chrono::prelude::*;
+use gauge::bar;
 use sysctl::Sysctl;
 use itertools::Itertools;
 
@@ -88,7 +91,10 @@ fn battery_status() -> StatusItem {
     let time = chrono::Duration::minutes(time_ctl.value_string().unwrap().parse::<i64>().unwrap());
     
     battery_item.name = "Battery".to_string();
-    battery_item.full_text = format!("🔋{}% {}", life_ctl.value_string().unwrap(), time);
+    let value_string = life_ctl.value_string().unwrap();
+    let value = value_string.parse::<u8>().unwrap();
+    
+    battery_item.full_text = format!("🔋{}%{} {}",value_string, bar(value, 5).unwrap(), time);
 
     battery_item
 }
