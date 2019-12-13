@@ -7,6 +7,9 @@ use gauge::bar;
 use sysctl::Sysctl;
 use itertools::Itertools;
 
+const BATTERY:char = '🔋';
+const CLOCK:char = '🕒';
+
 struct Status {
     items: Vec<StatusItem>
 }
@@ -68,7 +71,7 @@ fn time_status() -> StatusItem {
     let mut time_item = StatusItem::default();
 
     time_item.name = "Time".to_string();
-    time_item.full_text = format!("🕒{}", Local::now());
+    time_item.full_text = format!("{}{}", CLOCK, Local::now());
 
     time_item
 }
@@ -88,13 +91,17 @@ fn battery_status() -> StatusItem {
     let life_ctl = sysctl::Ctl::new("hw.acpi.battery.life").unwrap();
     let time_ctl = sysctl::Ctl::new("hw.acpi.battery.time").unwrap();
 
-    let time = chrono::Duration::minutes(time_ctl.value_string().unwrap().parse::<i64>().unwrap());
+    let mut time = 0;
+
+    if let sysctl::CtlValue::Int(val) = time_ctl.value().unwrap() {
+	time = val;
+    }
     
     battery_item.name = "Battery".to_string();
     let value_string = life_ctl.value_string().unwrap();
     let value = value_string.parse::<u8>().unwrap();
     
-    battery_item.full_text = format!("🔋{}%{} {}",value_string, bar(value, 5).unwrap(), time);
+    battery_item.full_text = format!("{}{}% {} {}", BATTERY, value_string, bar(value, 5).unwrap(), minutes_to_human(time));
 
     battery_item
 }
@@ -107,6 +114,13 @@ fn status() -> Status {
     status.push(time_status());
 
     status
+}
+
+fn minutes_to_human(min: i32) -> String {
+    let hours = min / 60;
+    let remainder = min - hours * 60;
+    
+    format!("{:02}h {:02}m", hours, remainder)
 }
 
 fn main() {
@@ -123,8 +137,7 @@ fn main() {
 
 #[cfg(test)]
 mod test {
-    use super::{Status, StatusItem};
-    use std::fmt::{Display, Formatter};
+    use super::{Status, StatusItem, minutes_to_human};
     
     #[test]
     fn default_status_item_when_to_string_then_all_fields_empty() {
@@ -159,5 +172,11 @@ mod test {
         status.push(status_item);
         
         assert_eq!(status.to_string(), "[{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"},{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}]");
+    }
+
+    #[test]
+
+    fn xxx() {
+	assert_eq!(minutes_to_human(60), "01h 00m");
     }
 }
