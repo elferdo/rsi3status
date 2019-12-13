@@ -12,7 +12,7 @@ fn interval<T>(v: &Vec<T>, percentage: usize) -> Result<(&T, &T), ()> {
     if v.len() == 1 {
 	Ok((&v[0], &v[0]))
     } else {
-	let interval_length = 100f64 / (v.len() as f64);
+	let _interval_length = 100f64 / (v.len() as f64);
 	
 	let point = v.len() * 100 / percentage;
 
@@ -25,7 +25,7 @@ impl Palette {
 	Palette {breakpoints: breakpoints}
     }
 
-    fn color(&self, percentage: u8) -> RGB8 {
+    fn color(&self, _percentage: u8) -> RGB8 {
 	if self.breakpoints.len() == 1 {
 	    self.breakpoints[0]
 	}
