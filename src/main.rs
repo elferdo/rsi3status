@@ -44,7 +44,7 @@ fn main() {
     println!("{}", status());
 
     loop {
-        std::thread::sleep(Duration::from_secs(1u64));
+        std::thread::sleep(Duration::from_secs(1));
     
         println!(",{}", status());
     }
