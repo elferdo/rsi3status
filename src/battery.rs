@@ -47,6 +47,8 @@ fn minutes_to_human(min: i32) -> String {
     format!("{:02}h {:02}m", hours, remainder)
 }
 
+// Produce a string representation of BatteryInfo or render
+// the error if something happens.
 impl Display for BatteryInfo {
     fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
 	write!(f, "{}", 
