@@ -1,10 +1,12 @@
 mod battery;
 mod colorscale;
+mod cpu;
 mod gauge;
 mod status;
 mod time;
 
 use battery::battery_status;
+use cpu::cpu_status;
 use status::{Status, StatusItem};
 use std::time::Duration;
 use time::{date_status, time_status};
@@ -30,6 +32,7 @@ fn status() -> Status {
 
     status.push(ferdo_status());
     status.push(battery_status());
+    status.push(cpu_status());
     status.push(date_status());
     status.push(time_status());
 
