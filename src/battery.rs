@@ -9,7 +9,7 @@ const BATTERY:char = '🔋';
 struct BatteryInfo {
     _info_expire: i32,
     _units: i32,
-    _state: i32,
+    state: i32,
     time: i32,
     life: i32
 }
@@ -35,7 +35,7 @@ fn read_battery_info() -> Result<BatteryInfo, sysctl::SysctlError> {
 	life: life,
 	time: time,
 	_units: units,
-	_state: state,
+	state: state,
 	_info_expire: info_expire
     })
 }
@@ -61,11 +61,19 @@ impl Display for BatteryInfo {
 		       format!("{}% <span foreground=\\\"#00de55\\\" background=\\\"#555555\\\">{}</span> {}",
 			       life,
 			       battery_bar,
-			       minutes_to_human(self.time)
+			       format_time(&self)
 		       )
 		   )
 	       )
 	)
+    }
+}
+
+fn format_time(info: &BatteryInfo) -> String {
+    match info.state {
+	1 => minutes_to_human(info.time),
+	2 => "charging".to_string(),
+	_ => "unknown battery state".to_string()
     }
 }
 
@@ -87,10 +95,36 @@ pub fn battery_status() -> StatusItem {
 
 #[cfg(test)]
 mod test {
-    use super::minutes_to_human;
+    use super::{BatteryInfo, format_time, minutes_to_human};
     
     #[test]
     fn sixty_minutes() {
 	assert_eq!(minutes_to_human(73), "01h 13m");
+    }
+
+    #[test]
+    fn format_time_when_state_2_then_charging() {
+	let info = BatteryInfo{
+	    _info_expire: 0,
+	    _units: 0,
+	    state: 2,
+	    time: 13,
+	    life: 17
+	};
+
+	assert_eq!(format_time(&info), "charging");
+    }
+
+    #[test]
+    fn format_time_when_xxx() {
+	let info = BatteryInfo{
+	    _info_expire: 0,
+	    _units: 0,
+	    state: 1,
+	    time: 13,
+	    life: 17
+	};
+
+	assert_eq!(format_time(&info), "00h 13m");
     }
 }
