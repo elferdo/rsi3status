@@ -4,6 +4,7 @@ const BLOCKS: [&str; 8] = [" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"]
 const FULL_BLOCK: &str = "█";
 const EMPTY_BLOCK: &str = " ";
 
+#[derive(Debug)]
 pub enum GaugeError {
     InvalidPercentage
 }
@@ -45,66 +46,52 @@ mod test {
     use super::bar;
     
     #[test]
-    fn when_empty_and_size_ten_then_ten_empty_chars() -> Result<(), String> {
-	let empty_bar = bar(0, 10)?;
+    fn when_empty_and_size_ten_then_ten_empty_chars() {
+	let empty_bar = bar(0, 10).unwrap();
 	
 	assert_eq!("          ", empty_bar);
-
-	Ok(())
     }
 
     #[test]
-    fn when_half_and_size_six_then_three_empty_chars() -> Result<(), String> {
-	let half_bar = bar(50, 6)?;
+    fn when_half_and_size_six_then_three_empty_chars() {
+	let half_bar = bar(50, 6).unwrap();
 
 	assert_eq!("███   ", half_bar);
-
-	Ok(())
     }
 
     #[test]
-    fn when_three_quarters_and_size_four_then_three_full_chars() -> Result<(), String> {
-	let three_quarter_bar = bar(75, 4)?;
+    fn when_three_quarters_and_size_four_then_three_full_chars() {
+	let three_quarter_bar = bar(75, 4).unwrap();
 
 	assert_eq!("███ ", three_quarter_bar);
-
-	Ok(())
     }
 
     #[test]
-    fn when_half_and_size_one_then_left_half_block() -> Result<(), String> {
-	let half_bar = bar(50, 1)?;
+    fn when_half_and_size_one_then_left_half_block() {
+	let half_bar = bar(50, 1).unwrap();
 
 	assert_eq!("▌", half_bar);
-
-	Ok(())
     }
 
     #[test]
-    fn when_full_and_size_one_then_full_block() -> Result<(), String> {
-	let full_bar = bar(100, 1)?;
+    fn when_full_and_size_one_then_full_block() {
+	let full_bar = bar(100, 1).unwrap();
 
 	assert_eq!("█", full_bar);
-
-	Ok(())
     }
 
     #[test]
-    fn when_full_and_size_two_then_two_full_blocks() -> Result<(), String> {
-	let full_bar = bar(100, 2)?;
+    fn when_full_and_size_two_then_two_full_blocks() {
+	let full_bar = bar(100, 2).unwrap();
 
 	assert_eq!("██", full_bar);
-
-	Ok(())
     }
     
     #[test]
-    fn when_thirty_two_and_size_four_then_one_full_and_one_quarter() -> Result<(), String> {
-	let half_bar = bar(32, 4)?;
+    fn when_thirty_two_and_size_four_then_one_full_and_one_quarter() {
+	let half_bar = bar(32, 4).unwrap();
 
 	assert_eq!("█▎  ", half_bar);
-
-	Ok(())
     }
 
     
