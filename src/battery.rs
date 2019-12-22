@@ -91,6 +91,6 @@ mod test {
     
     #[test]
     fn sixty_minutes() {
-	assert_eq!(minutes_to_human(60), "01h 00m");
+	assert_eq!(minutes_to_human(73), "01h 13m");
     }
 }
