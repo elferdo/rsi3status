@@ -71,6 +71,7 @@ impl Display for BatteryInfo {
 
 fn format_time(info: &BatteryInfo) -> String {
     match info.state {
+	0 => "charged".to_string(),
 	1 => minutes_to_human(info.time),
 	2 => "charging".to_string(),
 	_ => "unknown battery state".to_string()
