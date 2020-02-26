@@ -1,3 +1,4 @@
+#[cfg(feature = "battery")]
 mod battery;
 mod colorscale;
 mod cpu;
@@ -40,7 +41,8 @@ fn build_status() -> Status {
     let mut status = Status::default();
 
     status.push(Box::new(ferdo_status_provider()));
-    // status.push(battery_status());
+    #[cfg(feature = "battery")]
+    status.push(battery_status());
     status.push(Box::new(cpu_status_provider()));
     status.push(Box::new(date_status_provider()));
     status.push(Box::new(time_status_provider()));
