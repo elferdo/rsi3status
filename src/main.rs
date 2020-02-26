@@ -3,19 +3,19 @@ mod colorscale;
 mod cpu;
 mod gauge;
 mod status;
+mod status_item;
 mod time;
 
 use battery::battery_status;
 use cpu::cpu_status;
-use status::{Status, StatusItem};
+use status::Status;
+use status_item::StatusItem;
 use std::time::Duration;
 use time::{date_status, time_status};
-
 
 fn preface() -> String {
     "{\"version\":1}\n[".to_string()
 }
-
 
 fn ferdo_status() -> StatusItem {
     let mut time_item = StatusItem::default();
@@ -25,7 +25,6 @@ fn ferdo_status() -> StatusItem {
 
     time_item
 }
-
 
 fn status() -> Status {
     let mut status = Status::default();
@@ -39,17 +38,14 @@ fn status() -> Status {
     status
 }
 
-
 fn main() {
-
     println!("{}", preface());
 
     println!("{}", status());
 
     loop {
         std::thread::sleep(Duration::from_secs(1));
-    
+
         println!(",{}", status());
     }
 }
-

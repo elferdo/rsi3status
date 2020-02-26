@@ -1,6 +1,6 @@
 use super::stats::CpuStats;
 use crate::gauge::bar;
-use crate::status::StatusItem;
+use crate::status_item::StatusItem;
 use std::convert::TryFrom;
 
 pub fn cpu_busyness(_stat1: &CpuStats, _stat2: &CpuStats) -> Result<u8, String> {

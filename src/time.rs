@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use crate::status::StatusItem;
+use crate::status_item::StatusItem;
 
 const CLOCK:char = '🕒';
 const CALENDAR:char = '📅';

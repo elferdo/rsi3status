@@ -1,8 +1,9 @@
-use std::fmt::{Display, Formatter};
+use crate::status_item::StatusItem;
 use itertools::Itertools;
+use std::fmt::{Display, Formatter};
 
 pub struct Status {
-    items: Vec<StatusItem>
+    items: Vec<StatusItem>,
 }
 
 impl Status {
@@ -13,7 +14,7 @@ impl Status {
 
 impl Default for Status {
     fn default() -> Status {
-        Status{items: vec![]}
+        Status { items: vec![] }
     }
 }
 
@@ -21,48 +22,15 @@ impl Display for Status {
     fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
         write!(f, "[")?;
 
-	write!(f, "{}", self.items.iter().join(","))?;
-	       
+        write!(f, "{}", self.items.iter().join(","))?;
+
         write!(f, "]")
     }
 }
 
-#[derive(Clone)]
-pub struct StatusItem{
-    pub name: String,
-    instance: String,
-    pub markup: String,
-    pub full_text: String,
-    urgent: bool}
-
-impl Default for StatusItem {
-    fn default() -> StatusItem {
-        StatusItem {
-            name: "".to_string(),
-            instance: "".to_string(),
-            markup: "none".to_string(),
-            full_text: "".to_string(),
-	    urgent: false
-        }
-    }
-}
-
-impl Display for StatusItem {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
-        write!(f, "{{\"name\":\"{}\",\"instance\":\"{}\",\"markup\":\"{}\",\"full_text\":\"{}\"}}",
-               self.name,
-               self.instance,
-               self.markup,
-               self.full_text)
-    }
-}
-
-    #[test]
-    fn default_status_item_when_to_string_then_all_fields_empty() {
-        let status_item = StatusItem::default();
-        
-        assert_eq!(status_item.to_string(), "{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}");
-    }
+#[cfg(test)]
+mod test {
+    use super::*;
 
     #[test]
     fn default_status_when_default_then_empty_list() {
@@ -77,8 +45,11 @@ impl Display for StatusItem {
         let status_item = StatusItem::default();
 
         status.push(status_item);
-        
-        assert_eq!(status.to_string(), "[{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}]");
+
+        assert_eq!(
+            status.to_string(),
+            "[{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}]"
+        );
     }
 
     #[test]
@@ -88,6 +59,7 @@ impl Display for StatusItem {
 
         status.push(status_item.clone());
         status.push(status_item);
-        
+
         assert_eq!(status.to_string(), "[{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"},{\"name\":\"\",\"instance\":\"\",\"markup\":\"none\",\"full_text\":\"\"}]");
     }
+}
