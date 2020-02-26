@@ -24,6 +24,7 @@ fn get_sysctl_value(name: &str) -> Result<i32, sysctl::SysctlError> {
     }
 }
 
+#[cfg(target_os = "freebsd")]
 fn read_battery_info() -> Result<BatteryInfo, sysctl::SysctlError> {
     let life = get_sysctl_value("hw.acpi.battery.life")?; 
     let time = get_sysctl_value("hw.acpi.battery.time")?;
@@ -38,6 +39,11 @@ fn read_battery_info() -> Result<BatteryInfo, sysctl::SysctlError> {
 	state: state,
 	_info_expire: info_expire
     })
+}
+
+#[cfg(target_os = "linux")]
+fn read_battery_info() -> Result<BatteryInfo, String> {
+    Err("No sysctl for battery in linux".to_owned())
 }
 
 fn minutes_to_human(min: i32) -> String {
