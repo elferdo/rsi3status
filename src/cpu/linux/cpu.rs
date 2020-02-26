@@ -4,6 +4,8 @@ use crate::status::StatusProvider;
 use crate::status_item::StatusItem;
 use std::convert::TryFrom;
 
+const CPU: char = '💻';
+
 pub fn cpu_busyness(_stat1: &CpuStats, _stat2: &CpuStats) -> Result<u8, String> {
     let total_elapsed_time: u32 =
         _stat2.user - _stat1.user + _stat2.nice - _stat1.nice + _stat2.system - _stat1.system
@@ -46,7 +48,7 @@ impl StatusProvider for CpuStatusProvider {
 
         let life = 25;
 
-        item.full_text = bar(life, 25).unwrap();
+        item.full_text = format!("{}{}", CPU, bar(life, 25).unwrap());
 
         item
     }
