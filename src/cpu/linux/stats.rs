@@ -27,6 +27,7 @@ impl CpuStats {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
 

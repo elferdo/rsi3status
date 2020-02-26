@@ -17,27 +17,27 @@ pub fn cpu_busyness(_stat1: &CpuStats, _stat2: &CpuStats) -> Result<u8, String> 
     Ok(perc)
 }
 
-pub fn read_cpu_freq() -> Result<i32, sysctl::SysctlError> {
-    let freq = 100;
+// pub fn read_cpu_freq() -> Result<i32, sysctl::SysctlError> {
+//     let freq = 100;
 
-    Ok(freq)
-}
+//     Ok(freq)
+// }
 
-fn cpu_stats(stats: &str) -> Result<CpuStats, ()> {
-    let cpu_stats = CpuStats::new(&stats).unwrap();
-    // let sum = cpu_stats.user + cpu_stats.system + cpu_stats.idle;
+// fn cpu_stats(stats: &str) -> Result<CpuStats, ()> {
+//     let _cpu_stats = CpuStats::new(&stats).unwrap();
+//     // let sum = cpu_stats.user + cpu_stats.system + cpu_stats.idle;
 
-    // if sum == 0 {
-    //     return Ok(CpuStats { idle: 0, user: 0 });
-    // }
+//     // if sum == 0 {
+//     //     return Ok(CpuStats { idle: 0, user: 0 });
+//     // }
 
-    Ok(CpuStats {
-        user: 0,
-        nice: 0,
-        system: 0,
-        idle: 0,
-    })
-}
+//     Ok(CpuStats {
+//         user: 0,
+//         nice: 0,
+//         system: 0,
+//         idle: 0,
+//     })
+// }
 
 struct CpuStatusProvider {}
 impl StatusProvider for CpuStatusProvider {

@@ -6,7 +6,6 @@ mod status;
 mod status_item;
 mod time;
 
-use battery::battery_status;
 use cpu::cpu_status_provider;
 use status::{Status, StatusProvider};
 use status_item::StatusItem;

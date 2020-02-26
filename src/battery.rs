@@ -14,6 +14,7 @@ struct BatteryInfo {
     life: i32,
 }
 
+#[cfg(target_os = "freebsd")]
 fn get_sysctl_value(name: &str) -> Result<i32, sysctl::SysctlError> {
     let ctl = sysctl::Ctl::new(name)?;
 
