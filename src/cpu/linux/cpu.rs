@@ -1,5 +1,6 @@
 use super::stats::CpuStats;
 use crate::gauge::bar;
+use crate::status::StatusProvider;
 use crate::status_item::StatusItem;
 use std::convert::TryFrom;
 
@@ -38,14 +39,21 @@ fn cpu_stats(stats: &str) -> Result<CpuStats, ()> {
     })
 }
 
-pub fn cpu_status() -> StatusItem {
-    let mut item = StatusItem::default();
+struct CpuStatusProvider {}
+impl StatusProvider for CpuStatusProvider {
+    fn provide_status_item(&self) -> StatusItem {
+        let mut item = StatusItem::default();
 
-    let life = 25;
+        let life = 25;
 
-    item.full_text = bar(life, 25).unwrap();
+        item.full_text = bar(life, 25).unwrap();
 
-    item
+        item
+    }
+}
+
+pub fn cpu_status_provider() -> impl StatusProvider {
+    CpuStatusProvider {}
 }
 
 #[cfg(test)]

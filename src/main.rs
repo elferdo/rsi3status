@@ -7,33 +7,44 @@ mod status_item;
 mod time;
 
 use battery::battery_status;
-use cpu::cpu_status;
-use status::Status;
+use cpu::cpu_status_provider;
+use status::{Status, StatusProvider};
 use status_item::StatusItem;
 use std::time::Duration;
-use time::{date_status, time_status};
+use time::{date_status_provider, time_status_provider};
 
 fn preface() -> String {
     "{\"version\":1}\n[".to_string()
 }
 
-fn ferdo_status() -> StatusItem {
-    let mut time_item = StatusItem::default();
-
-    time_item.name = "Ferdo".to_string();
-    time_item.full_text = "Ferdo".to_string();
-
-    time_item
+struct StaticStringProvider {
+    string: String,
 }
 
-fn status() -> Status {
+impl StatusProvider for StaticStringProvider {
+    fn provide_status_item(&self) -> StatusItem {
+        let mut item = StatusItem::default();
+
+        item.full_text = self.string.clone();
+
+        item
+    }
+}
+
+fn ferdo_status_provider() -> impl StatusProvider {
+    StaticStringProvider {
+        string: "Ferdo".to_owned(),
+    }
+}
+
+fn build_status() -> Status {
     let mut status = Status::default();
 
-    status.push(ferdo_status());
-    status.push(battery_status());
-    status.push(cpu_status());
-    status.push(date_status());
-    status.push(time_status());
+    status.push(Box::new(ferdo_status_provider()));
+    // status.push(battery_status());
+    status.push(Box::new(cpu_status_provider()));
+    status.push(Box::new(date_status_provider()));
+    status.push(Box::new(time_status_provider()));
 
     status
 }
@@ -41,11 +52,13 @@ fn status() -> Status {
 fn main() {
     println!("{}", preface());
 
-    println!("{}", status());
+    let status = build_status();
+
+    println!("{}", status);
 
     loop {
         std::thread::sleep(Duration::from_secs(1));
 
-        println!(",{}", status());
+        println!(",{}", status);
     }
 }

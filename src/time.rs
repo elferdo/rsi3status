@@ -1,23 +1,39 @@
-use chrono::prelude::*;
+use crate::status::StatusProvider;
 use crate::status_item::StatusItem;
+use chrono::prelude::*;
 
-const CLOCK:char = '🕒';
-const CALENDAR:char = '📅';
+const CLOCK: char = '🕒';
+const CALENDAR: char = '📅';
 
-pub fn time_status() -> StatusItem {
-    let mut time_item = StatusItem::default();
+struct DateStatusProvider {}
+struct TimeStatusProvider {}
 
-    time_item.name = "Time".to_string();
-    time_item.full_text = format!("{}{}", CLOCK, Local::now().format("%H:%M:%S"));
+impl StatusProvider for DateStatusProvider {
+    fn provide_status_item(&self) -> StatusItem {
+        let mut time_item = StatusItem::default();
 
-    time_item
+        time_item.name = "Time".to_string();
+        time_item.full_text = format!("{}{}", CALENDAR, Local::now().format("%d %h %Y"));
+
+        time_item
+    }
 }
 
-pub fn date_status() -> StatusItem {
-    let mut time_item = StatusItem::default();
+impl StatusProvider for TimeStatusProvider {
+    fn provide_status_item(&self) -> StatusItem {
+        let mut time_item = StatusItem::default();
 
-    time_item.name = "Time".to_string();
-    time_item.full_text = format!("{}{}", CALENDAR, Local::now().format("%d %h %Y"));
+        time_item.name = "Time".to_string();
+        time_item.full_text = format!("{}{}", CLOCK, Local::now().format("%H:%M:%S"));
 
-    time_item
+        time_item
+    }
+}
+
+pub fn date_status_provider() -> impl StatusProvider {
+    DateStatusProvider {}
+}
+
+pub fn time_status_provider() -> impl StatusProvider {
+    TimeStatusProvider {}
 }
