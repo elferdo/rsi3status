@@ -1,7 +1,6 @@
 use super::stats::CpuStats;
 use crate::gauge::bar;
-use crate::status::StatusProvider;
-use crate::status_item::StatusItem;
+use crate::status::{StatusItem, StatusProvider};
 use std::convert::TryFrom;
 
 const CPU: char = '💻';

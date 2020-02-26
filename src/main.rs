@@ -4,12 +4,10 @@ mod colorscale;
 mod cpu;
 mod gauge;
 mod status;
-mod status_item;
 mod time;
 
+use crate::status::{Status, StatusItem, StatusProvider};
 use cpu::cpu_status_provider;
-use status::{Status, StatusProvider};
-use status_item::StatusItem;
 use std::time::Duration;
 use time::{date_status_provider, time_status_provider};
 

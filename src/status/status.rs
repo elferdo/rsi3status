@@ -1,4 +1,4 @@
-use crate::status_item::StatusItem;
+use super::StatusItem;
 use itertools::Itertools;
 use std::fmt::{Display, Formatter};
 
