@@ -16,22 +16,24 @@ fn preface() -> String {
 }
 
 struct StaticStringProvider {
-    string: String,
+    static_string_status_item: StatusItem,
 }
 
 impl StatusProvider for StaticStringProvider {
-    fn provide_status_item(&self) -> StatusItem {
-        let mut item = StatusItem::default();
+    fn update(&mut self) {}
 
-        item.full_text = self.string.clone();
-
-        item
+    fn provide_status_item(&self) -> &StatusItem {
+        &self.static_string_status_item
     }
 }
 
 fn ferdo_status_provider() -> impl StatusProvider {
+    let mut status_item = StatusItem::default();
+
+    status_item.full_text = "Ferdo".to_owned();
+
     StaticStringProvider {
-        string: "Ferdo".to_owned(),
+        static_string_status_item: status_item,
     }
 }
 
@@ -51,13 +53,14 @@ fn build_status() -> Status {
 fn main() {
     println!("{}", preface());
 
-    let status = build_status();
+    let mut status = build_status();
 
     println!("{}", status);
 
     loop {
         std::thread::sleep(Duration::from_secs(1));
 
+        status.update();
         println!(",{}", status);
     }
 }

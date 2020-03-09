@@ -1,3 +1,7 @@
+use std::convert::TryFrom;
+use std::default::Default;
+
+#[derive(Default)]
 pub struct CpuStats {
     pub user: u32,
     pub nice: u32,
@@ -24,6 +28,39 @@ impl CpuStats {
             system: system,
             idle: idle,
         })
+    }
+}
+
+fn cpu_busyness(_stat1: &CpuStats, _stat2: &CpuStats) -> Result<u8, String> {
+    let total_elapsed_time: u32 =
+        _stat2.user - _stat1.user + _stat2.nice - _stat1.nice + _stat2.system - _stat1.system
+            + _stat2.idle
+            - _stat1.idle;
+    let elapsed_idle: u32 = _stat2.idle - _stat1.idle;
+
+    let perc: u8 = u8::try_from(elapsed_idle * 100 / total_elapsed_time)
+        .expect("A percentage value should always fit into a u8");
+
+    Ok(perc)
+}
+
+pub struct CpuStatsProvider {
+    last_stats: CpuStats,
+}
+
+impl CpuStatsProvider {
+    pub fn new() -> Self {
+        CpuStatsProvider {
+            last_stats: CpuStats::default(),
+        }
+    }
+
+    pub fn cpu_busyness(&mut self, stats: CpuStats) -> Result<u8, String> {
+        let result = cpu_busyness(&self.last_stats, &stats);
+
+        self.last_stats = stats;
+
+        return result;
     }
 }
 
@@ -55,33 +92,56 @@ mod test {
         assert!(cpu_stats.is_none());
     }
 
-    // #[test]
-    // fn cpustats_when_all_ten_then_33_percent() {
-    //         let cpu_stat1 = "cpu  0 0 0 11743615 3155 0 3875 0 0 0";
-    //         // user nice system idle
-    //         let cpu_stat2 = "cpu  10 10 10 11797619 3156 0 3923 0 0 0";
+    #[test]
+    fn cpustats_when_equal_and_called_twice_then_25() {
+        let cpu_stat1 = CpuStats::new("cpu  3 3 3 3 3155 0 3875 0 0 0").unwrap();
+        let cpu_stat2 = CpuStats::new("cpu  8 8 8 8 3155 0 3875 0 0 0").unwrap();
+        let mut provider = CpuStatsProvider::new();
 
-    //         assert_eq!(cpu_busyness(cpu_stat1, cpu_stat2), Ok(33));
-    // }
+        assert_eq!(provider.cpu_busyness(cpu_stat1), Ok(25));
+        assert_eq!(provider.cpu_busyness(cpu_stat2), Ok(25));
+    }
 
-    // #[test]
-    // fn when_cpu_stat_zero_then_idle_zero() {
-    //         let cpu_stat = "cpu  0 0 0 11743615 3155 0 3875 0 0 0";
+    #[test]
+    fn cpustats_when_idle_double_and_called_twice_then_50() {
+        let cpu_stat1 = CpuStats::new("cpu  3 3 3 3 3155 0 3875 0 0 0").unwrap();
+        let cpu_stat2 = CpuStats::new("cpu  8 8 8 18 3155 0 3875 0 0 0").unwrap();
+        let mut provider = CpuStatsProvider::new();
 
-    //         assert_eq!(cpu_stats(&cpu_stat).unwrap().idle, 0);
-    // }
+        assert_eq!(provider.cpu_busyness(cpu_stat1), Ok(25));
+        assert_eq!(provider.cpu_busyness(cpu_stat2), Ok(50));
+    }
 
-    // #[test]
-    // fn when_idle_in_cpu_stat_10_then_idle_10() {
-    //         let cpu_stat = "cpu  3 5 10 11743615 3155 0 3875 0 0 0";
+    #[test]
+    fn cpu_busyness_when_real_values_then_real_percentage() {
+        let user1 = 132979;
+        let nice1 = 37383;
+        let system1 = 39062;
+        let idle1 = 11743615;
 
-    //         assert_eq!(cpu_stats(&cpu_stat).unwrap().idle, 10);
-    // }
+        let user2 = 133486;
+        let nice2 = 37383;
+        let system2 = 39218;
+        let idle2 = 11797619;
 
-    // #[test]
-    // fn when_user_in_cpu_stat_3_then_idle_3() {
-    //         let cpu_stat = "cpu  3 5 10 11743615 3155 0 3875 0 0 0";
+        let stats1 = format!(
+            "cpu  {} {} {} {} 3155 0 3875 0 0 0",
+            user1, nice1, system1, idle1
+        );
+        let stats2 = format!(
+            "cpu  {} {} {} {} 3156 0 3923 0 0 0",
+            user2, nice2, system2, idle2
+        );
 
-    //         assert_eq!(cpu_stats(&cpu_stat).unwrap().user, 3);
-    // }
+        let cpu_stats1 = CpuStats::new(&stats1).unwrap();
+        let cpu_stats2 = CpuStats::new(&stats2).unwrap();
+
+        let total_elapsed_time: u32 =
+            user2 - user1 + nice2 - nice1 + system2 - system1 + idle2 - idle1;
+        let elapsed_idle: u32 = idle2 - idle1;
+
+        let perc: u8 = u8::try_from(elapsed_idle * 100 / total_elapsed_time).unwrap();
+
+        assert_eq!(cpu_busyness(&cpu_stats1, &cpu_stats2).unwrap(), perc);
+    }
 }

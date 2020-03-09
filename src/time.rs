@@ -4,35 +4,51 @@ use chrono::prelude::*;
 const CLOCK: char = '🕒';
 const CALENDAR: char = '📅';
 
-struct DateStatusProvider {}
-struct TimeStatusProvider {}
+struct DateStatusProvider {
+    date_item: StatusItem,
+}
+struct TimeStatusProvider {
+    time_item: StatusItem,
+}
 
 impl StatusProvider for DateStatusProvider {
-    fn provide_status_item(&self) -> StatusItem {
-        let mut time_item = StatusItem::default();
+    fn update(&mut self) {
+        let mut date_item = StatusItem::default();
 
-        time_item.name = "Time".to_string();
-        time_item.full_text = format!("{}{}", CALENDAR, Local::now().format("%d %h %Y"));
+        date_item.name = "Time".to_string();
+        date_item.full_text = format!("{}{}", CALENDAR, Local::now().format("%d %h %Y"));
 
-        time_item
+        self.date_item = date_item;
+    }
+
+    fn provide_status_item(&self) -> &StatusItem {
+        &self.date_item
     }
 }
 
 impl StatusProvider for TimeStatusProvider {
-    fn provide_status_item(&self) -> StatusItem {
+    fn update(&mut self) {
         let mut time_item = StatusItem::default();
 
         time_item.name = "Time".to_string();
         time_item.full_text = format!("{}{}", CLOCK, Local::now().format("%H:%M:%S"));
 
-        time_item
+        self.time_item = time_item;
+    }
+
+    fn provide_status_item(&self) -> &StatusItem {
+        &self.time_item
     }
 }
 
 pub fn date_status_provider() -> impl StatusProvider {
-    DateStatusProvider {}
+    DateStatusProvider {
+        date_item: StatusItem::default(),
+    }
 }
 
 pub fn time_status_provider() -> impl StatusProvider {
-    TimeStatusProvider {}
+    TimeStatusProvider {
+        time_item: StatusItem::default(),
+    }
 }

@@ -3,7 +3,8 @@ use itertools::Itertools;
 use std::fmt::{Display, Formatter};
 
 pub trait StatusProvider {
-    fn provide_status_item(&self) -> StatusItem;
+    fn update(&mut self);
+    fn provide_status_item(&self) -> &StatusItem;
 }
 
 pub struct Status {
@@ -13,6 +14,12 @@ pub struct Status {
 impl Status {
     pub fn push(&mut self, provider: Box<dyn StatusProvider>) {
         self.providers.push(provider)
+    }
+
+    pub fn update(&mut self) {
+        for provider in self.providers.iter_mut() {
+            provider.update()
+        }
     }
 }
 
@@ -44,12 +51,16 @@ mod test {
     use super::*;
 
     #[derive(Clone)]
-    struct MockProvider {}
+    struct MockProvider {
+        status_item: StatusItem,
+    }
 
     impl StatusProvider for MockProvider {
-        fn provide_status_item(&self) -> StatusItem {
-            StatusItem::default()
+        fn provide_status_item(&self) -> &StatusItem {
+            &self.status_item
         }
+
+        fn update(&mut self) {}
     }
 
     #[test]
@@ -62,7 +73,9 @@ mod test {
     #[test]
     fn default_status_when_one_item_then_to_string_equals_list_of_one_item() {
         let mut status = Status::default();
-        let status_item = MockProvider {};
+        let status_item = MockProvider {
+            status_item: StatusItem::default(),
+        };
 
         status.push(Box::new(status_item));
 
@@ -75,7 +88,9 @@ mod test {
     #[test]
     fn default_status_when_two_items_then_to_string_equals_list_of_two_items() {
         let mut status = Status::default();
-        let status_item = MockProvider {};
+        let status_item = MockProvider {
+            status_item: StatusItem::default(),
+        };
 
         status.push(Box::new(status_item.clone()));
         status.push(Box::new(status_item));
